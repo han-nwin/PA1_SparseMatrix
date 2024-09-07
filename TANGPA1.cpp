@@ -8,6 +8,9 @@
 */ 
 
 #include <iostream>
+#include <stdexcept>
+#include <fstream>  // For file handling
+#include <string>   
 
 /**
  * @struct Node
@@ -201,7 +204,14 @@ int SparseMatrix::access(int rowIndex, int colIndex) {
     if (rowIndex <= 0 || rowIndex > this->numRow || colIndex <= 0 || colIndex > this->numCol) {
         throw std::out_of_range("Row or column index is out of bounds");
     }
+    // Start at the row placeholder
+    Node* rowNode = this->rowHeaders[rowIndex];  
 
+    // Traverse and find the correct position in the row based on the column index
+    while (rowNode->nextCol != nullptr && rowNode->nextCol->colIndex < colIndex) {
+        rowNode = rowNode->nextCol;
+    }
+    return rowNode->nextCol->data;
 }
 
 // Implementation of insert method
@@ -284,6 +294,12 @@ void SparseMatrix::display() {
 
 
 int main(int argc, char* argv[]){
+        // Ensure that a file argument is passed
+    if (argc != 2) {
+        std::cerr << "Usage: " << argv[0] << " <csv-file-path>" << std::endl;
+        return 1;
+    }
+
     std::cout << "This is a main program" << std::endl;
     SparseMatrix m(5,10);
     m.display();
@@ -298,5 +314,6 @@ int main(int argc, char* argv[]){
     m.display();
     std::cout << "row: " << m.rowLength() <<std::endl;
     std::cout << "col: " << m.colLength() <<std::endl;
+    std::cout << "Access: " << m.access(5,10) << std::endl;
     return 0;
 }
