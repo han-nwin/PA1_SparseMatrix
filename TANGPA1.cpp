@@ -21,8 +21,8 @@ struct Node {
     int data;     ///< The data value stored in the node.
     int rowIndex; ///< The row index of the node (for the matrix).
     int colIndex; ///< The column index of the node (for the matrix).
-    Node* nextRow; ///< Pointer to the next node in the same row.
-    Node* nextCol; ///< Pointer to the next node in the same column.
+    Node* nextRow; ///< Pointer to the next node in the same column.
+    Node* nextCol; ///< Pointer to the next node in the same row.
 
     /**
      * @brief Constructs a new Node object.
@@ -50,11 +50,11 @@ struct Node {
  */
 class SparseMatrix {
     private:
-    Node header;  ///< Pointer to the head node of the circularly-linked list.
+    Node* header;  ///< Pointer to the head node of the circularly-linked list.
     int numRow;        // Number of rows in the matrix
     int numCol;        // Number of columns in the matrix
-    Node** rowHeaders;  // Dynamic Array of pointers that point to row header nodes
-    Node** colHeaders;  // Dynamic Array of pointers that point to column header nodes
+    Node** rowHeaders;  // Dynamic Array of pointers that point to row-header nodes
+    Node** colHeaders;  // Dynamic Array of pointers that point to column-header nodes
 
 
     public:
@@ -66,9 +66,21 @@ class SparseMatrix {
      * @param numRow The number of rows of the matrix
      * @param numCol The number of columns of the matrix
      */
-    SparseMatrix(int numRow = 0, int numCol = 0) : header(0, numRow, numCol), numRow(numRow), numCol(numCol) {//Create a placeholder node at 0:0 with row and col numbers stored inside rowIndex, colIndex
-        this->numRow = numRow;
-        this->numCol = numCol;
+    SparseMatrix(int numRow = 0, int numCol = 0) : numRow(numRow), numCol(numCol) {
+        header = new Node(0, numRow, numCol); //Create a placeholder(header) node at 0:0 with row and col numbers stored inside rowIndex, colIndex
+
+        // Allocate memory for row and column headers, and initialize each with a placeholder node
+        rowHeaders = new Node*[numRow + 1];  // +1 to handle 1-based indexing
+        colHeaders = new Node*[numCol + 1];  // +1 to handle 1-based indexing
+
+        // Giving placeholders some dummy values
+        for (int i = 1; i <= numRow; ++i) {
+            rowHeaders[i] = new Node(0, i, 0);  // Placeholder for each row
+        }
+
+        for (int j = 1; j <= numCol; ++j) {
+            colHeaders[j] = new Node(0, 0, j);  // Placeholder for each column
+        }
     }
 
     /**
@@ -93,7 +105,18 @@ class SparseMatrix {
         // Free the arrays of row and column headers
         delete[] rowHeaders;
         delete[] colHeaders;
+        //Finally delete header pointer
+        delete header;
     }
+
+    /**
+     * @brief Displays the entire sparse matrix.
+     *
+     * This function iterates through the entire matrix and prints the elements.
+     * If a node exists for a specific row and column, it prints the node's data.
+     * Otherwise, it prints 0 for elements that are not explicitly stored.
+     */
+    void display();
 
     /**
      * @brief Returns the row length of the Sparse Matrix.
@@ -162,36 +185,99 @@ class SparseMatrix {
 
 };
 
-//Implementation of rowLength method
+// Implementation of rowLength method
 int SparseMatrix::rowLength() {
     return this->numRow;
 }
 
-//Implementation of colLength method
+// Implementation of colLength method
 int SparseMatrix::colLength() {
     return this->numCol;
 }
 
-//Implementation of access method
+// Implementation of access method
+int SparseMatrix::access(int rowIndex, int colIndex) {
+    // Check for out-of-bounds indices
+    if (rowIndex <= 0 || rowIndex > this->numRow || colIndex <= 0 || colIndex > this->numCol) {
+        throw std::out_of_range("Row or column index is out of bounds");
+    }
 
+}
 
-//Implementation of insert method
+// Implementation of insert method
 void SparseMatrix::insert(int data, int rowIndex, int colIndex) {
     // Check for out-of-bounds indices
     if (rowIndex <= 0 || rowIndex > this->numRow || colIndex <= 0 || colIndex > this->numCol) {
         throw std::out_of_range("Row or column index is out of bounds");
     }
-     //No need to add zero value
-    if (data = 0) {
+
+    // No need to add zero value
+    if (data == 0) {
         return;
     }
 
+    // ===== Insert into the row ===== //
+    // Start at the row placeholder
+    Node* rowNode = this->rowHeaders[rowIndex];  
 
-    
+    // Traverse and find the correct position in the row based on the column index
+    while (rowNode->nextCol != nullptr && rowNode->nextCol->colIndex < colIndex) {
+        rowNode = rowNode->nextCol;
+    }
+
+    // If the node already exists at the position (rowIndex, colIndex), update its data
+    if (rowNode->nextCol != nullptr && rowNode->nextCol->colIndex == colIndex) {
+        rowNode->nextCol->data = data;  // Update the existing node's data
+        return;
+    }
+
+    // If no node existed, create a new node for the matrix
+    Node* newNode = new Node(data, rowIndex, colIndex);
+
+    // Insert the new node into the row
+    newNode->nextCol = rowNode->nextCol;  // Link to the next node in the row
+    rowNode->nextCol = newNode;  // Link the previous node to the new node
+
+    //=============================================================================================//
+
+    // ===== Insert into the column ===== //
+    // Start at the colum placeholder
+    Node* colNode = this->colHeaders[colIndex];  
+
+    // Traverse and find the correct position in the column based on the row index
+    while (colNode->nextRow != nullptr && colNode->nextRow->rowIndex < rowIndex) {
+        colNode = colNode->nextRow;
+    }
+
+    // Insert the new node into the column
+    newNode->nextRow = colNode->nextRow;  // Link to the next node in the column
+    colNode->nextRow = newNode;  // Link the previous node to the new node
 }
 
-//Implementation of remove method
 
+// Implementation of remove method
+
+// Implementation of display method
+void SparseMatrix::display() {
+    // Iterate over each row
+    for (int i = 1; i <= numRow; ++i) {
+        Node* current = rowHeaders[i]->nextCol;  // Skip the placeholder and start with the first actual node
+
+        // Iterate over each column in this row
+        for (int j = 1; j <= numCol; ++j) {
+            // If current is not null and it's the correct column, print the data
+            if (current != nullptr && current->colIndex == j) { //Need to check nullptr to prevent crash when accessing current->colIndex
+                std::cout << current->data << " ";
+                current = current->nextCol;  // Move to the next node in the row
+            } else {
+                // Otherwise, print 0 (sparse matrix)
+                std::cout << "0 ";
+            }
+        }
+        // Move to the next row after printing all columns in this row
+        std::cout << std::endl;
+    }
+}
 
 
 
@@ -199,8 +285,18 @@ void SparseMatrix::insert(int data, int rowIndex, int colIndex) {
 
 int main(int argc, char* argv[]){
     std::cout << "This is a main program" << std::endl;
-    SparseMatrix m(5,5);
-    std::cout << "row " << m.rowLength() <<std::endl;
-    std::cout << "col " << m.colLength() <<std::endl;
+    SparseMatrix m(5,10);
+    m.display();
+    for (int i = 1; i<=5; i++){
+        for(int j = 1; j<=10; j++){
+            m.insert(9,i,j);
+        }
+    }
+    m.display();
+    m.insert(77,1,1);
+    m.insert(77,5,10);
+    m.display();
+    std::cout << "row: " << m.rowLength() <<std::endl;
+    std::cout << "col: " << m.colLength() <<std::endl;
     return 0;
 }
