@@ -143,20 +143,22 @@ class SparseMatrix {
      *
      * This method returns the row length of the matrix. For example,
      * if the matrix is 10x5, this method will return 10.
-     *
+     * The method is marked as 'const', guarantees that the state of the matrix is not altered.
+     * 
      * @return int: The row length of the matrix.
      */
-    int rowLength();
+    int rowLength() const;
 
     /**
      * @brief Returns the column length of the Sparse Matrix.
      *
      * This method returns the column length of the matrix. For example,
      * if the matrix is 10x5, this method will return 5.
+     * The method is marked as 'const', guarantees that the state of the matrix is not altered.
      *
      * @return int: The column length of the matrix.
      */
-    int colLength();
+    int colLength() const;
 
     /**
      * @brief Accesses the value at the specified row and column in the sparse matrix.
@@ -164,6 +166,7 @@ class SparseMatrix {
      * This method retrieves the value stored in the matrix at the given row and column.
      * If no value is stored at that position (i.e., the element is 0 in the sparse matrix),
      * it will either return 0 or throw an exception, depending on the implementation.
+     * The method is marked as 'const', guarantees that the state of the matrix is not altered.
      *
      * @param int rowIndex The row index of the element to access.
      * @param int colIndex The column index of the element to access.
@@ -172,7 +175,7 @@ class SparseMatrix {
      * 
      * @throws std::out_of_range if the rowIndex or colIndex is outside the matrix bounds.
      */
-    int access(int rowIndex, int colIndex);
+    int access(int rowIndex, int colIndex) const;
 
     /**
      * @brief Adds a non-zero element to the matrix.
@@ -211,30 +214,37 @@ class SparseMatrix {
      * Matrix addition is only valid when the dimensions of both matrices are the same. If the input 
      * matrices have different dimensions, an exception will be thrown.
      * 
-     * @param a SparseMatrix object representing the first matrix to be added.
-     * @param b SparseMatrix object representing the second matrix to be added.
+     * The parameters are passed as `const` references to avoid unnecessary copying and to ensure 
+     * that the input matrices are not modified by the function, improving both performance and safety.
+     * 
+     * @param a A const reference to a SparseMatrix object representing the first matrix to be added. 
+     *          Passing by reference avoids copying the matrix, and the const qualifier ensures that 
+     *          the matrix is not modified.
+     * @param b A const reference to a SparseMatrix object representing the second matrix to be added. 
+     *          Like `a`, this is passed by reference for efficiency and marked const to guarantee 
+     *          the matrix is not altered.
      * 
      * @return SparseMatrix The resulting sparse matrix `c` after adding matrix `a` and matrix `b`.
      * 
      * @throws std::invalid_argument If the dimensions of matrices `a` and `b` do not match.
      * @throws std::runtime_error If any other error occurs during the matrix addition process.
      */
-    SparseMatrix matrixAddition(SparseMatrix a, SparseMatrix b);
+    static SparseMatrix matrixAddition(const SparseMatrix & a, const SparseMatrix & b);
 
 };
 
 // Implementation of rowLength method
-int SparseMatrix::rowLength() {
+int SparseMatrix::rowLength() const {
     return this->numRow;
 }
 
 // Implementation of colLength method
-int SparseMatrix::colLength() {
+int SparseMatrix::colLength() const {
     return this->numCol;
 }
 
 // Implementation of access method
-int SparseMatrix::access(int rowIndex, int colIndex) {
+int SparseMatrix::access(int rowIndex, int colIndex) const {
     // Check for out-of-bounds indices
     if (rowIndex <= 0 || rowIndex > this->numRow || colIndex <= 0 || colIndex > this->numCol) {
         throw std::out_of_range("Row or column index is out of bounds");
@@ -373,23 +383,21 @@ void SparseMatrix::display() {
 }
 
 // Implementation of matrixAddition method
-SparseMatrix SparseMatrix::matrixAddition(SparseMatrix a, SparseMatrix b) {
+SparseMatrix SparseMatrix::matrixAddition(const SparseMatrix & a, const SparseMatrix & b) {
     // Check the size
     if (a.colLength() != b.colLength() || a.rowLength() != b.rowLength()) {
         throw std::invalid_argument("Matrices must be equal in size");
     }
-
-    try
-    {
-        /* code */
+    SparseMatrix c(a.rowLength(),a.colLength());
+        // Adding elements
+    int sum{0};
+    for(int i = 1; i <= c.rowLength(); i++) {
+        for(int j = 1; j <= c.numCol; j++) {
+            sum = a.access(i,j) + b.access(i,j);
+            c.insert(sum,i,j);
+        }
     }
-    catch(const std::runtime_error& e)
-    {
-        std::cerr << e.what() << std::endl;
-    }
-    
-
-
+    return c;
 }
 
 
@@ -448,5 +456,25 @@ int main(int argc, char* argv[]){
     std::cout << "Row index: " << r << std::endl;
     std::cout << "Col index: " << c << std::endl;
     std::cout << "Access Data: " << m.access(r,c) << std::endl;
+
+    std::cout << "===Addition===" << std::endl;
+    SparseMatrix aMatrix(3,3);
+    std::cout << "Add Data" << std::endl;
+    for (int i = 1; i<=3; i++){
+        for(int j = 1; j<=3; j++){
+            aMatrix.insert(3,i,j);
+        }
+    }
+    aMatrix.display();
+    SparseMatrix bMatrix(3,3);
+    for (int i = 1; i<=3; i++){
+        for(int j = 1; j<=3; j++){
+            bMatrix.insert(2,i,j);
+        }
+    }
+    bMatrix.display();
+
+    SparseMatrix cMatrix = SparseMatrix::matrixAddition(aMatrix,bMatrix);
+    cMatrix.display();
     return 0;
 }
