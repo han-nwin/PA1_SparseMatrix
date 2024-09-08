@@ -128,6 +128,7 @@ class SparseMatrix {
         // Finally delete the header pointer
         delete header;
     }
+   
     /**
      * @brief Displays the entire sparse matrix.
      *
@@ -164,8 +165,8 @@ class SparseMatrix {
      * If no value is stored at that position (i.e., the element is 0 in the sparse matrix),
      * it will either return 0 or throw an exception, depending on the implementation.
      *
-     * @param rowIndex The row index of the element to access.
-     * @param colIndex The column index of the element to access.
+     * @param int rowIndex The row index of the element to access.
+     * @param int colIndex The column index of the element to access.
      * 
      * @return int The value at the specified row and column. Returns 0 if the element is not stored.
      * 
@@ -194,13 +195,31 @@ class SparseMatrix {
      * It throws an exception if the specified element is zero (indicating no non-zero element at that position),
      * or if the row and column indices are out of bounds for the matrix.
      *
-     * @param rowIndex The row index of the element to remove.
-     * @param colIndex The column index of the element to remove.
+     * @param int rowIndex The row index of the element to remove.
+     * @param int colIndex The column index of the element to remove.
      * 
      * @throws std::out_of_range if the rowIndex or colIndex is outside the matrix bounds.
      * @throws std::invalid_argument if the element at the specified position is zero (no non-zero element to remove).
      */
     void remove(int rowIndex, int colIndex);
+
+    /**
+     * @brief Perform addition of two sparse matrices.
+     * 
+     * This function performs the matrix addition operation on two input sparse matrices, `a` and `b`. 
+     * The function returns a new sparse matrix, `c`, which represents the sum of the input matrices. 
+     * Matrix addition is only valid when the dimensions of both matrices are the same. If the input 
+     * matrices have different dimensions, an exception will be thrown.
+     * 
+     * @param a SparseMatrix object representing the first matrix to be added.
+     * @param b SparseMatrix object representing the second matrix to be added.
+     * 
+     * @return SparseMatrix The resulting sparse matrix `c` after adding matrix `a` and matrix `b`.
+     * 
+     * @throws std::invalid_argument If the dimensions of matrices `a` and `b` do not match.
+     * @throws std::runtime_error If any other error occurs during the matrix addition process.
+     */
+    SparseMatrix matrixAddition(SparseMatrix a, SparseMatrix b);
 
 };
 
@@ -353,6 +372,25 @@ void SparseMatrix::display() {
     }
 }
 
+// Implementation of matrixAddition method
+SparseMatrix SparseMatrix::matrixAddition(SparseMatrix a, SparseMatrix b) {
+    // Check the size
+    if (a.colLength() != b.colLength() || a.rowLength() != b.rowLength()) {
+        throw std::invalid_argument("Matrices must be equal in size");
+    }
+
+    try
+    {
+        /* code */
+    }
+    catch(const std::runtime_error& e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
+    
+
+
+}
 
 
 
