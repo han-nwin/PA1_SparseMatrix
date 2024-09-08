@@ -70,7 +70,7 @@ class SparseMatrix {
      * @param numCol The number of columns of the matrix
      */
     SparseMatrix(int numRow = 0, int numCol = 0) : numRow(numRow), numCol(numCol) {
-        header = new Node(0, numRow, numCol); //Create a placeholder(header) node at 0:0 with row and col numbers stored inside rowIndex, colIndex
+        header = new Node(0, numRow, numCol); //Create a Top-Left Header node at 0:0 with row and col numbers stored inside rowIndex, colIndex
 
         // Allocate memory for row and column headers, and initialize each with a placeholder node
         rowHeaders = new Node*[numRow + 1];  // +1 to handle 1-based indexing
@@ -79,10 +79,12 @@ class SparseMatrix {
         // Giving placeholders some dummy values
         for (int i = 1; i <= numRow; ++i) {
             rowHeaders[i] = new Node(0, i, 0);  // Placeholder for each row
+            rowHeaders[i]->nextCol = rowHeaders[i];  // Circular: points back to its placeholder node
         }
 
         for (int j = 1; j <= numCol; ++j) {
             colHeaders[j] = new Node(0, 0, j);  // Placeholder for each column
+            colHeaders[j]->nextRow = colHeaders[j];  // Circular: points back to itself
         }
     }
 
@@ -95,23 +97,37 @@ class SparseMatrix {
      * is destroyed.
      */
     ~SparseMatrix() {
-        // Delete all the row headers and their corresponding nodes.
-        for (int i = 0; i <= numRow; i++) {
-            Node* current = rowHeaders[i];
-            while (current != nullptr) {
+        // Delete all nodes in each row (excluding the row headers)
+        for (int i = 1; i <= numRow; ++i) {
+            Node* current = rowHeaders[i]->nextCol;
+            Node* head = rowHeaders[i]; // The header of the row
+            while (current != head) {  // Stop when we return to the header
+                Node* nextNode = current->nextCol;
+                delete current;
+                current = nextNode;
+            }
+            delete rowHeaders[i]; // Delete the row header itself
+        }
+
+        // Delete all nodes in each column (excluding the column headers)
+        for (int j = 1; j <= numCol; ++j) {
+            Node* current = colHeaders[j]->nextRow;
+            Node* head = colHeaders[j]; // The header of the column
+            while (current != head) {  // Stop when we return to the header
                 Node* nextNode = current->nextRow;
                 delete current;
                 current = nextNode;
             }
+            delete colHeaders[j]; // Delete the column header itself
         }
 
         // Free the arrays of row and column headers
         delete[] rowHeaders;
         delete[] colHeaders;
-        //Finally delete header pointer
+
+        // Finally delete the header pointer
         delete header;
     }
-
     /**
      * @brief Displays the entire sparse matrix.
      *
@@ -204,13 +220,21 @@ int SparseMatrix::access(int rowIndex, int colIndex) {
     if (rowIndex <= 0 || rowIndex > this->numRow || colIndex <= 0 || colIndex > this->numCol) {
         throw std::out_of_range("Row or column index is out of bounds");
     }
+
     // Start at the row placeholder
     Node* rowNode = this->rowHeaders[rowIndex];  
 
     // Traverse and find the correct position in the row based on the column index
-    while (rowNode->nextCol != nullptr && rowNode->nextCol->colIndex < colIndex) {
+    while (rowNode->nextCol != this->rowHeaders[rowIndex] && rowNode->nextCol->colIndex < colIndex) {
         rowNode = rowNode->nextCol;
     }
+
+    // If no node exists, return 0
+    if (rowNode->nextCol == this->rowHeaders[rowIndex] || rowNode->nextCol->colIndex != colIndex) {
+        return 0;
+    }
+
+    // Return the data
     return rowNode->nextCol->data;
 }
 
@@ -231,12 +255,12 @@ void SparseMatrix::insert(int data, int rowIndex, int colIndex) {
     Node* rowNode = this->rowHeaders[rowIndex];  
 
     // Traverse and find the correct position in the row based on the column index
-    while (rowNode->nextCol != nullptr && rowNode->nextCol->colIndex < colIndex) {
+    while (rowNode->nextCol != this->rowHeaders[rowIndex] && rowNode->nextCol->colIndex < colIndex) {
         rowNode = rowNode->nextCol;
     }
 
     // If the node already exists at the position (rowIndex, colIndex), update its data
-    if (rowNode->nextCol != nullptr && rowNode->nextCol->colIndex == colIndex) {
+    if (rowNode->nextCol != this->rowHeaders[rowIndex] && rowNode->nextCol->colIndex == colIndex) {
         rowNode->nextCol->data = data;  // Update the existing node's data
         return;
     }
@@ -255,7 +279,7 @@ void SparseMatrix::insert(int data, int rowIndex, int colIndex) {
     Node* colNode = this->colHeaders[colIndex];  
 
     // Traverse and find the correct position in the column based on the row index
-    while (colNode->nextRow != nullptr && colNode->nextRow->rowIndex < rowIndex) {
+    while (colNode->nextRow != this->colHeaders[colIndex] && colNode->nextRow->rowIndex < rowIndex) {
         colNode = colNode->nextRow;
     }
 
@@ -264,8 +288,48 @@ void SparseMatrix::insert(int data, int rowIndex, int colIndex) {
     colNode->nextRow = newNode;  // Link the previous node to the new node
 }
 
-
 // Implementation of remove method
+void SparseMatrix::remove(int rowIndex, int colIndex) {
+    // Check for out-of-bounds indices
+    if (rowIndex <= 0 || rowIndex > this->numRow || colIndex <= 0 || colIndex > this->numCol) {
+        throw std::out_of_range("Row or column index is out of bounds");
+    }
+
+    // ===== Remove from the row =====
+    Node* prevRowNode = this->rowHeaders[rowIndex];
+    Node* toRemoveRowNode = prevRowNode->nextCol;
+
+    // Traverse and find the node to remove in the row
+    while (toRemoveRowNode != this->rowHeaders[rowIndex] && toRemoveRowNode->colIndex < colIndex) {
+        prevRowNode = toRemoveRowNode;
+        toRemoveRowNode = toRemoveRowNode->nextCol;
+    }
+
+    // If the node is found in the row list
+    if (toRemoveRowNode != this->rowHeaders[rowIndex] && toRemoveRowNode->colIndex == colIndex) {
+        prevRowNode->nextCol = toRemoveRowNode->nextCol;  // Remove node from row
+    } else {
+        return;  // Node not found
+    }
+
+    // ===== Remove from the column =====
+    Node* prevColNode = this->colHeaders[colIndex];
+    Node* toRemoveColNode = prevColNode->nextRow;
+
+    // Traverse and find the node to remove in the column
+    while (toRemoveColNode != this->colHeaders[colIndex] && toRemoveColNode->rowIndex < rowIndex) {
+        prevColNode = toRemoveColNode;
+        toRemoveColNode = toRemoveColNode->nextRow;
+    }
+
+    // If the node is found in the column list
+    if (toRemoveColNode != this->colHeaders[colIndex] && toRemoveColNode->rowIndex == rowIndex) {
+        prevColNode->nextRow = toRemoveColNode->nextRow;  // Remove node from column
+    }
+
+    // Free the memory of the node
+    delete toRemoveRowNode;  // Only need to delete once since row and column point to the same node
+}
 
 // Implementation of display method
 void SparseMatrix::display() {
@@ -275,8 +339,8 @@ void SparseMatrix::display() {
 
         // Iterate over each column in this row
         for (int j = 1; j <= numCol; ++j) {
-            // If current is not null and it's the correct column, print the data
-            if (current != nullptr && current->colIndex == j) { //Need to check nullptr to prevent crash when accessing current->colIndex
+            // If current is not header and it's the correct column, print the data
+            if (current != rowHeaders[i] && current->colIndex == j) { 
                 std::cout << current->data << " ";
                 current = current->nextCol;  // Move to the next node in the row
             } else {
@@ -294,26 +358,57 @@ void SparseMatrix::display() {
 
 
 int main(int argc, char* argv[]){
-        // Ensure that a file argument is passed
+    // Ensure that a file argument is passed
     if (argc != 2) {
-        std::cerr << "Usage: " << argv[0] << " <csv-file-path>" << std::endl;
+        std::cerr << "Usage: Missing file path argument " << argv[0] << " <csv-file-path>" << std::endl;
+        return 1;
+    }
+    // Check if the file path is to a .cvs
+    std::string filePath = argv[1];
+    size_t dotPosition = filePath.rfind('.');
+    if (dotPosition == std::string::npos || filePath.substr(dotPosition) != ".csv") {
+        std::cerr << "Error: The input file must be a .csv file." << std::endl;
         return 1;
     }
 
-    std::cout << "This is a main program" << std::endl;
+    std::cout << "++++++++++++++++THIS IS A TEST PORTION+++++++++++++++++" << std::endl;
     SparseMatrix m(5,10);
     m.display();
+    std::cout << "Add Data" << std::endl;
     for (int i = 1; i<=5; i++){
         for(int j = 1; j<=10; j++){
-            m.insert(9,i,j);
+            m.insert(8,i,j);
         }
     }
     m.display();
-    m.insert(77,1,1);
-    m.insert(77,5,10);
+    std::cout << "Num Row: " << m.rowLength() <<std::endl;
+    std::cout << "Num Col: " << m.colLength() <<std::endl;
+
+    std::cout << "===Insert===" << std::endl;
+    int r = 4;
+    int c = 7;
+    std::cout << "Row index: " << r << std::endl;
+    std::cout << "Col index: " << c << std::endl;
+    m.insert(77,r,c);
     m.display();
-    std::cout << "row: " << m.rowLength() <<std::endl;
-    std::cout << "col: " << m.colLength() <<std::endl;
-    std::cout << "Access: " << m.access(5,10) << std::endl;
+    std::cout << "===Access===" << std::endl;
+    std::cout << "Row index: " << r << std::endl;
+    std::cout << "Col index: " << c << std::endl;
+    std::cout << "Access Data: " << m.access(r,c) << std::endl;
+
+    std::cout << "===Remove===" << std::endl;
+    r = 4;
+    c = 7;
+    std::cout << "Row index: " << r << std::endl;
+    std::cout << "Col index: " << c << std::endl;
+    m.remove(r,c);
+    m.display();
+
+    std::cout << "===Access After Remove===" << std::endl;
+    r = 4;
+    c = 7;
+    std::cout << "Row index: " << r << std::endl;
+    std::cout << "Col index: " << c << std::endl;
+    std::cout << "Access Data: " << m.access(r,c) << std::endl;
     return 0;
 }
