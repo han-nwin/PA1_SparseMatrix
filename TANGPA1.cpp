@@ -53,7 +53,7 @@ struct Node {
  */
 class SparseMatrix {
     private:
-    Node* header;  ///< Pointer to the head node of the circularly-linked list.
+    Node* header;  ///< Pointer to the very header node 0:0
     int numRow;        // Number of rows in the matrix
     int numCol;        // Number of columns in the matrix
     Node** rowHeaders;  // Dynamic Array of pointers that point to row-header nodes
