@@ -76,6 +76,10 @@ class SparseMatrix {
         rowHeaders = new Node*[numRow + 1];  // +1 to handle 1-based indexing
         colHeaders = new Node*[numCol + 1];  // +1 to handle 1-based indexing
 
+        // Assign header to be the first element of rowHeaders and colHeaders arrays
+        rowHeaders[0] = header;
+        colHeaders[0] = header;
+
         // Giving placeholders some dummy values
         for (int i = 1; i <= numRow; ++i) {
             rowHeaders[i] = new Node(0, i, 0);  // Placeholder for each row
@@ -98,7 +102,7 @@ class SparseMatrix {
      */
     ~SparseMatrix() {
         // Delete all nodes in each row (excluding the row headers)
-        for (int i = 1; i <= numRow; ++i) {
+        for (int i = 0; i <= numRow; ++i) {
             Node* current = rowHeaders[i]->nextCol;
             Node* head = rowHeaders[i]; // The header of the row
             while (current != head) {  // Stop when we return to the header
@@ -110,7 +114,7 @@ class SparseMatrix {
         }
 
         // Delete all nodes in each column (excluding the column headers)
-        for (int j = 1; j <= numCol; ++j) {
+        for (int j = 0; j <= numCol; ++j) {
             Node* current = colHeaders[j]->nextRow;
             Node* head = colHeaders[j]; // The header of the column
             while (current != head) {  // Stop when we return to the header
