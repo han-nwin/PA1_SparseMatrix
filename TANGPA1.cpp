@@ -22,8 +22,8 @@
  */
 struct Node {
     int data;     ///< The data value stored in the node.
-    int rowIndex; ///< The row index of the node (for the matrix).
-    int colIndex; ///< The column index of the node (for the matrix).
+    unsigned int rowIndex; ///< The row index of the node (for the matrix).
+    unsigned int colIndex; ///< The column index of the node (for the matrix).
     Node* nextRow; ///< Pointer to the next node in the same column.
     Node* nextCol; ///< Pointer to the next node in the same row.
 
@@ -33,11 +33,11 @@ struct Node {
      * Initializes the node with the specified data, row index, and column index.
      * Pointers are set to nullptr by default.
      *
-     * @param data The value stored in the node.
-     * @param rowIndex The row number of the node in the matrix.
-     * @param colIndex The column number of the node in the matrix.
+     * @param int data The value stored in the node.
+     * @param int rowIndex The row number of the node in the matrix.
+     * @param int colIndex The column number of the node in the matrix.
      */
-    Node(int data = 0, int rowIndex = 0, int colIndex = 0)
+    Node(int data = 0, unsigned int rowIndex = 0, unsigned int colIndex = 0)
         : data{data}, rowIndex{rowIndex}, colIndex{colIndex}, nextRow{nullptr}, nextCol{nullptr} {}
 };
 
@@ -54,8 +54,8 @@ struct Node {
 class SparseMatrix {
     private:
     Node* header;  ///< Pointer to the very header node 0:0
-    int numRow;        // Number of rows in the matrix
-    int numCol;        // Number of columns in the matrix
+    unsigned int numRow;  // Number of rows in the matrix
+    unsigned int numCol; // Number of columns in the matrix
     Node** rowHeaders;  // Dynamic Array of pointers that point to row-header nodes
     Node** colHeaders;  // Dynamic Array of pointers that point to column-header nodes
 
@@ -69,7 +69,7 @@ class SparseMatrix {
      * @param numRow The number of rows of the matrix
      * @param numCol The number of columns of the matrix
      */
-    SparseMatrix(int numRow = 0, int numCol = 0) : numRow(numRow), numCol(numCol) {
+    SparseMatrix(unsigned int numRow = 0, unsigned int numCol = 0) : numRow(numRow), numCol(numCol) {
         header = new Node(0, numRow, numCol); //Create a Top-Left Header node at 0:0 with row and col numbers stored inside rowIndex, colIndex
 
         // Allocate memory for row and column headers, and initialize each with a placeholder node
@@ -81,12 +81,12 @@ class SparseMatrix {
         colHeaders[0] = header;
 
         // Giving placeholders some dummy values
-        for (int i = 1; i <= numRow; ++i) {
+        for (int i = 1; i <= numRow; i++) {
             rowHeaders[i] = new Node(0, i, 0);  // Placeholder for each row
             rowHeaders[i]->nextCol = rowHeaders[i];  // Circular: points back to its placeholder node
         }
 
-        for (int j = 1; j <= numCol; ++j) {
+        for (int j = 1; j <= numCol; j++) {
             colHeaders[j] = new Node(0, 0, j);  // Placeholder for each column
             colHeaders[j]->nextRow = colHeaders[j];  // Circular: points back to itself
         }
@@ -102,7 +102,7 @@ class SparseMatrix {
      */
     ~SparseMatrix() {
         // Delete all nodes in each row (excluding the row headers)
-        for (int i = 0; i <= numRow; ++i) {
+        for (int i = 0; i <= numRow; i++) {
             Node* current = rowHeaders[i]->nextCol;
             Node* head = rowHeaders[i]; // The header of the row
             while (current != head) {  // Stop when we return to the header
@@ -114,7 +114,7 @@ class SparseMatrix {
         }
 
         // Delete all nodes in each column (excluding the column headers)
-        for (int j = 0; j <= numCol; ++j) {
+        for (int j = 0; j <= numCol; j++) {
             Node* current = colHeaders[j]->nextRow;
             Node* head = colHeaders[j]; // The header of the column
             while (current != head) {  // Stop when we return to the header
@@ -221,10 +221,10 @@ class SparseMatrix {
      * The parameters are passed as `const` references to avoid unnecessary copying and to ensure 
      * that the input matrices are not modified by the function, improving both performance and safety.
      * 
-     * @param a A const reference to a SparseMatrix object representing the first matrix to be added. 
+     * @param const SparseMatrix & a: A const reference to a SparseMatrix object representing the first matrix to be added. 
      *          Passing by reference avoids copying the matrix, and the const qualifier ensures that 
      *          the matrix is not modified.
-     * @param b A const reference to a SparseMatrix object representing the second matrix to be added. 
+     * @param const SparseMatrix & b: A const reference to a SparseMatrix object representing the second matrix to be added. 
      *          Like `a`, this is passed by reference for efficiency and marked const to guarantee 
      *          the matrix is not altered.
      * 
@@ -394,7 +394,7 @@ SparseMatrix SparseMatrix::matrixAddition(const SparseMatrix & a, const SparseMa
     }
     SparseMatrix c(a.rowLength(),a.colLength());
         // Adding elements
-    int sum{0};
+    int sum = 0;
     for(int i = 1; i <= c.rowLength(); i++) {
         for(int j = 1; j <= c.numCol; j++) {
             sum = a.access(i,j) + b.access(i,j);
@@ -420,7 +420,7 @@ int main(int argc, char* argv[]){
         std::cerr << "Error: The input file must be a .csv file." << std::endl;
         return 1;
     }
-
+    
     std::cout << "++++++++++++++++THIS IS A TEST PORTION+++++++++++++++++" << std::endl;
     SparseMatrix m(5,10);
     m.display();
