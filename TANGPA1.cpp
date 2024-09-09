@@ -102,7 +102,7 @@ class SparseMatrix {
      */
     ~SparseMatrix() {
         // Delete all nodes in each row (excluding the row headers)
-        for (int i = 0; i <= numRow; i++) {
+        for (int i = 1; i <= numRow; i++) {
             Node* current = rowHeaders[i]->nextCol;
             Node* head = rowHeaders[i]; // The header of the row
             while (current != head) {  // Stop when we return to the header
@@ -114,7 +114,7 @@ class SparseMatrix {
         }
 
         // Delete all nodes in each column (excluding the column headers)
-        for (int j = 0; j <= numCol; j++) {
+        for (int j = 1; j <= numCol; j++) {
             Node* current = colHeaders[j]->nextRow;
             Node* head = colHeaders[j]; // The header of the column
             while (current != head) {  // Stop when we return to the header
@@ -405,8 +405,21 @@ SparseMatrix SparseMatrix::matrixAddition(const SparseMatrix & a, const SparseMa
 }
 
 
-
-
+/**
+ * @brief Entry point of the program that demonstrates SparseMatrix operations.
+ *
+ * The function validates command-line input, ensures a CSV file path is provided, 
+ * and demonstrates matrix creation, insertion, removal, access, and addition 
+ * using the SparseMatrix class. Results are printed to the console.
+ * 
+ * @param argc Number of command-line arguments (should be 2).
+ * @param argv Array of arguments, where argv[1] is the path to a CSV file.
+ * 
+ * @return int Returns 0 on success, or 1 on invalid input.
+ * * Error Handling:
+ *   - If no file path is passed as an argument, the program prints a usage message and exits.
+ *   - If the input file is not a CSV file (based on the file extension), the program prints an error message and exits.
+ */
 int main(int argc, char* argv[]){
     // Ensure that a file argument is passed
     if (argc != 2) {
