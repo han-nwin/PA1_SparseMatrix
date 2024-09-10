@@ -101,7 +101,7 @@ class SparseMatrix {
      * is destroyed.
      */
     ~SparseMatrix() {
-        // Delete all nodes in each row (excluding the row headers)
+        // Delete all nodes by traversing through each row (excluding the row headers)
         for (int i = 1; i <= numRow; i++) {
             Node* current = rowHeaders[i]->nextCol;
             Node* head = rowHeaders[i]; // The header of the row
@@ -111,18 +111,6 @@ class SparseMatrix {
                 current = nextNode;
             }
             delete rowHeaders[i]; // Delete the row header itself
-        }
-
-        // Delete all nodes in each column (excluding the column headers)
-        for (int j = 1; j <= numCol; j++) {
-            Node* current = colHeaders[j]->nextRow;
-            Node* head = colHeaders[j]; // The header of the column
-            while (current != head) {  // Stop when we return to the header
-                Node* nextNode = current->nextRow;
-                delete current;
-                current = nextNode;
-            }
-            delete colHeaders[j]; // Delete the column header itself
         }
 
         // Free the arrays of row and column headers
