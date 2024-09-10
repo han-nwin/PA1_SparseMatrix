@@ -245,6 +245,44 @@ class SparseMatrix {
      * @throws std::invalid_argument If the dimensions of matrices `a` and `b` are not valid to perform matrix multiplication.
      */
     static SparseMatrix matrixMultiplication(const SparseMatrix & a, const SparseMatrix & b);
+
+    /**
+     * @brief Perform matrix transposition on a sparse matrix.
+     * 
+     * This function performs the transposition operation on the input sparse matrix `a`. 
+     * The function returns a new sparse matrix, `b`, which represents the transposed version of the input matrix.
+     * In matrix transposition, the rows of the matrix are turned into columns and vice versa.
+     * 
+     * The parameter is passed as a `const` reference to avoid unnecessary copying and to ensure 
+     * that the input matrix is not modified by the function, improving both performance and safety.
+     * 
+     * @param const SparseMatrix & a: A const reference to a SparseMatrix object representing the matrix to be transposed. 
+     *          Passing by reference avoids copying the matrix, and the const qualifier ensures that 
+     *          the matrix is not modified.
+     * 
+     * @return SparseMatrix The resulting sparse matrix `b` after transposing matrix `a`.
+     */
+     static SparseMatrix matrixTransposition(const SparseMatrix & a);
+
+    /**
+     * @brief Perform scalar multiplication on a sparse matrix.
+     * 
+     * This function performs scalar multiplication on the input sparse matrix `a` by multiplying each element 
+     * of the matrix by the scalar `k`. The function returns a new sparse matrix, `b`, which contains the 
+     * scaled elements of the original matrix.
+     * 
+     * The matrix `a` is passed as a `const` reference to avoid unnecessary copying and ensure that the 
+     * input matrix is not modified, improving both performance and safety. The scalar `k` is passed by value 
+     * since it is a simple data type.
+     * 
+     * @param const SparseMatrix & a: A const reference to a SparseMatrix object representing the matrix to be multiplied by the scalar.
+     *          Passing by reference avoids copying the matrix, and the const qualifier ensures that the matrix is not modified.
+     * @param int k: The scalar value to multiply each element of the matrix by.
+     * 
+     * @return SparseMatrix The resulting sparse matrix `b` after multiplying each element of matrix `a` by scalar `k`.
+     */
+     static SparseMatrix matrixScalarMultiplication(const SparseMatrix & a, int k);
+
 };
 
 // Implementation of rowLength method
@@ -414,9 +452,9 @@ SparseMatrix SparseMatrix::matrixAddition(const SparseMatrix & a, const SparseMa
     return c;
 }
 
-//Implementation of matrixMultiplication method
+// Implementation of matrixMultiplication method
 SparseMatrix SparseMatrix::matrixMultiplication(const SparseMatrix & a, const SparseMatrix & b){
-    // Check the size
+    // Check the size of both matrices
     if (a.colLength() != b.rowLength() ) {
         throw std::invalid_argument("Number of col in matrix 'a' must be equal to number of row in matrix 'b'");
     }
@@ -435,6 +473,33 @@ SparseMatrix SparseMatrix::matrixMultiplication(const SparseMatrix & a, const Sp
 
     return c;
 
+}
+
+// Implementaion of matrixTransposition method
+SparseMatrix SparseMatrix::matrixTransposition(const SparseMatrix & a) {
+    //Initialize new matrix
+    SparseMatrix b(a.colLength(), a.rowLength());
+
+    for(int i = 1; i <= a.rowLength(); i++) {
+        for(int j = 1; j <= a.colLength(); j++) {
+            b.insert(a.access(i,j),j,i);
+        }
+    }
+
+    return b;
+}
+
+// Implementation of matrixScalarMultiplication method
+SparseMatrix SparseMatrix::matrixScalarMultiplication(const SparseMatrix & a, int k){
+    //Initialize new matrix
+    SparseMatrix b(a.rowLength(),a.colLength());
+    for(int i = 1; i <= a.rowLength(); i++) {
+        for(int j = 1; j <= a.colLength(); j++) {
+            b.insert(a.access(i,j)*k,i,j);
+        }
+    }
+
+    return b;
 }
 
 
@@ -548,5 +613,19 @@ int main(int argc, char* argv[]){
 
     SparseMatrix fMatrix = SparseMatrix::matrixMultiplication(dMatrix,eMatrix);
     fMatrix.display();
+
+    std::cout << "===Transposition===" << std::endl;
+    fMatrix.insert(777,2,3);
+    fMatrix.insert(555,3,2);
+    fMatrix.display();
+    SparseMatrix gMatrix = SparseMatrix::matrixTransposition(fMatrix);
+    gMatrix.display();
+
+    std::cout << "===Scalar Multiplication===" << std::endl;
+    gMatrix.display();
+    gMatrix = SparseMatrix::matrixScalarMultiplication(gMatrix, 10);
+    gMatrix.display();
+
+
     return 0;
 }
