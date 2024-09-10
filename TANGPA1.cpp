@@ -11,6 +11,7 @@
 #include <stdexcept>
 #include <fstream>  // For file handling
 #include <string>   
+#include <sstream>
 
 /**
  * @struct Node
@@ -262,7 +263,7 @@ class SparseMatrix {
      * 
      * @return SparseMatrix The resulting sparse matrix `b` after transposing matrix `a`.
      */
-     static SparseMatrix matrixTransposition(const SparseMatrix & a);
+    static SparseMatrix matrixTransposition(const SparseMatrix & a);
 
     /**
      * @brief Perform scalar multiplication on a sparse matrix.
@@ -281,7 +282,7 @@ class SparseMatrix {
      * 
      * @return SparseMatrix The resulting sparse matrix `b` after multiplying each element of matrix `a` by scalar `k`.
      */
-     static SparseMatrix matrixScalarMultiplication(const SparseMatrix & a, int k);
+    static SparseMatrix matrixScalarMultiplication(const SparseMatrix & a, int k);
 
 };
 
@@ -531,7 +532,103 @@ int main(int argc, char* argv[]){
         std::cerr << "Error: The input file must be a .csv file." << std::endl;
         return 1;
     }
+
+    //Open the csv file
+    std::ifstream file(filePath);
+    // Check if the file is open
+    if (!file.is_open()) {
+        std::cerr << "Could not open the file!" << std::endl;
+        return 1;
+    }
+
+    char operation;
+    int matrixSize;
+    std::string line;   
+    // Read the first line from the file
+    if (std::getline(file, line)) {
+        std::stringstream ss(line);
+        std::string firstElement, secondElement;
+        // Get the first element
+        std::getline(ss, firstElement, ',');
+        // Get the second element
+        std::getline(ss, secondElement, ',');
+
+        // Store operation and matrixSize
+        operation = firstElement[0];
+        matrixSize = std::stoi(secondElement); // Convert to int
+    }
+    std::cout << operation << " " << matrixSize << std::endl;
+    std::cout << "================"<< std::endl;
+
+    // Skip the second line
+    std::getline(file, line);
+
+    if(operation == 'A' || operation == 'M') {
+        //initialize the 2 matrices
+        SparseMatrix aMatrix(matrixSize,matrixSize);
+        SparseMatrix bMatrix(matrixSize,matrixSize);
+
+        int rowNum = 0;
+        int colNum = 0;
+        int value = 0;
+        int loopCount = 1;
+
+        // Get data for aMatrix
+        for(int i = 1; i <= matrixSize; i++) {
+            for(int j = 1; j <= matrixSize; j++) {
+                // Read the third line and process it
+                if (std::getline(file, line)) {
+                    std::stringstream ss(line);
+                    std::string firstElement, secondElement, thirdElement;
+                    // Get the first element
+                    std::getline(ss, firstElement, ',');
+                    // Get the second element
+                    std::getline(ss, secondElement, ',');
+                    // Get the third element
+                    std::getline(ss, thirdElement, ',');
+
+                    rowNum = std::stoi(firstElement);
+                    colNum = std::stoi(secondElement);
+                    value = std::stoi(thirdElement);
+                }
+                aMatrix.insert(value,rowNum,colNum);
+            }
+        }
+        aMatrix.display();
+
+        // Skip the one line
+        std::getline(file, line);
+
+        std::cout << "-----------"<< std::endl;
+        //Get data for bMatrix
+        for(int i = 1; i <= matrixSize; i++) {
+            for(int j = 1; j <= matrixSize; j++) {
+                // Read the third line and process it
+                if (std::getline(file, line)) {
+                    std::stringstream ss(line);
+                    std::string firstElement, secondElement, thirdElement;
+                    // Get the first element
+                    std::getline(ss, firstElement, ',');
+                    // Get the second element
+                    std::getline(ss, secondElement, ',');
+                    // Get the third element
+                    std::getline(ss, thirdElement, ',');
+
+                    rowNum = std::stoi(firstElement);
+                    colNum = std::stoi(secondElement);
+                    value = std::stoi(thirdElement);
+                }
+                bMatrix.insert(value,rowNum,colNum);
+            }
+        }
+        bMatrix.display();
+
+    } // End of If (A or M)
     
+
+    
+    file.close();
+    /*
     std::cout << "++++++++++++++++THIS IS A TEST PORTION+++++++++++++++++" << std::endl;
     SparseMatrix m(5,10);
     m.display();
@@ -626,6 +723,6 @@ int main(int argc, char* argv[]){
     SparseMatrix kMatrix = SparseMatrix::matrixScalarMultiplication(gMatrix, 10);
     kMatrix.display();
 
-
+    */
     return 0;
 }
