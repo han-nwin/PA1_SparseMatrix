@@ -623,8 +623,8 @@ int main(int argc, char* argv[]){
 
     std::cout << "===Scalar Multiplication===" << std::endl;
     gMatrix.display();
-    gMatrix = SparseMatrix::matrixScalarMultiplication(gMatrix, 10);
-    gMatrix.display();
+    SparseMatrix kMatrix = SparseMatrix::matrixScalarMultiplication(gMatrix, 10);
+    kMatrix.display();
 
 
     return 0;
