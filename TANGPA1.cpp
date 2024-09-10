@@ -211,7 +211,7 @@ class SparseMatrix {
     void remove(int rowIndex, int colIndex);
 
     /**
-     * @brief Perform addition of two sparse matrices.
+     * @brief Perform matrix addition of two sparse matrices.
      * 
      * This function performs the matrix addition operation on two input sparse matrices, `a` and `b`. 
      * The function returns a new sparse matrix, `c`, which represents the sum of the input matrices. 
@@ -231,9 +231,31 @@ class SparseMatrix {
      * @return SparseMatrix The resulting sparse matrix `c` after adding matrix `a` and matrix `b`.
      * 
      * @throws std::invalid_argument If the dimensions of matrices `a` and `b` do not match.
-     * @throws std::runtime_error If any other error occurs during the matrix addition process.
      */
     static SparseMatrix matrixAddition(const SparseMatrix & a, const SparseMatrix & b);
+
+    /**
+     * @brief Perform matrix multiplication of two sparse matrices.
+     * 
+     * This function performs the matrix multiplication operation on two input sparse matrices, `a` and `b`. 
+     * The function returns a new sparse matrix, `c`, which represents the sum of the input matrices. 
+     * Matrix multiplication is only valid when the number of columns of the first matrix equal to the number of rows
+     * of the second matrix
+     * 
+     * The parameters are passed as `const` references to avoid unnecessary copying and to ensure 
+     * that the input matrices are not modified by the function, improving both performance and safety.
+     * 
+     * @param const SparseMatrix & a: A const reference to a SparseMatrix object representing the first matrix to be added. 
+     *          Passing by reference avoids copying the matrix, and the const qualifier ensures that 
+     *          the matrix is not modified.
+     * @param const SparseMatrix & b: A const reference to a SparseMatrix object representing the second matrix to be added. 
+     *          Like `a`, this is passed by reference for efficiency and marked const to guarantee 
+     *          the matrix is not altered.
+     * 
+     * @return SparseMatrix The resulting sparse matrix `c` after adding matrix `a` and matrix `b`.
+     * 
+     * @throws std::invalid_argument If the dimensions of matrices `a` and `b` are not valid to perform matrix multiplication.
+     */
 
 };
 
