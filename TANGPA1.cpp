@@ -240,11 +240,11 @@ class SparseMatrix {
      *          Like `a`, this is passed by reference for efficiency and marked const to guarantee 
      *          the matrix is not altered.
      * 
-     * @return SparseMatrix The resulting sparse matrix `c` after adding matrix `a` and matrix `b`.
+     * @return SparseMatrix The resulting sparse matrix `c` after multipliying matrix `a` and matrix `b`.
      * 
      * @throws std::invalid_argument If the dimensions of matrices `a` and `b` are not valid to perform matrix multiplication.
      */
-
+    static SparseMatrix matrixMultiplication(const SparseMatrix & a, const SparseMatrix & b);
 };
 
 // Implementation of rowLength method
@@ -414,6 +414,29 @@ SparseMatrix SparseMatrix::matrixAddition(const SparseMatrix & a, const SparseMa
     return c;
 }
 
+//Implementation of matrixMultiplication method
+SparseMatrix SparseMatrix::matrixMultiplication(const SparseMatrix & a, const SparseMatrix & b){
+    // Check the size
+    if (a.colLength() != b.rowLength() ) {
+        throw std::invalid_argument("Number of col in matrix 'a' must be equal to number of row in matrix 'b'");
+    }
+    // Create the result matrix
+    SparseMatrix c(a.rowLength(),b.colLength());
+    
+    for(int i = 1; i <= a.rowLength(); i++) {
+        for(int j = 1; j <= b.colLength(); j++){
+            int prod = 0;
+            for (int k = 1; k <= a.colLength(); k++) {
+                prod += a.access(i,k) * b.access(k,j);
+                c.insert(prod,i,j);
+            }
+        }
+    }
+
+    return c;
+
+}
+
 
 /**
  * @brief Entry point of the program that demonstrates SparseMatrix operations.
@@ -503,5 +526,27 @@ int main(int argc, char* argv[]){
 
     SparseMatrix cMatrix = SparseMatrix::matrixAddition(aMatrix,bMatrix);
     cMatrix.display();
+
+
+    std::cout << "===Multiplication===" << std::endl;
+    SparseMatrix dMatrix(4,4);
+    std::cout << "Add Data" << std::endl;
+    for (int i = 1; i<=4; i++){
+        for(int j = 1; j<=4; j++){
+            dMatrix.insert(7,i,j);
+        }
+    }
+    dMatrix.display();
+
+    SparseMatrix eMatrix(4,4);
+    for (int i = 1; i<=4; i++){
+        for(int j = 1; j<=4; j++){
+            eMatrix.insert(3,i,j);
+        }
+    }
+    eMatrix.display();
+
+    SparseMatrix fMatrix = SparseMatrix::matrixMultiplication(dMatrix,eMatrix);
+    fMatrix.display();
     return 0;
 }
