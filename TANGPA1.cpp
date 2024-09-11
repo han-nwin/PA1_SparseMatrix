@@ -558,7 +558,7 @@ int main(int argc, char* argv[]){
         matrixSize = std::stoi(secondElement); // Convert to int
     }
     std::cout << operation << " " << matrixSize << std::endl;
-    std::cout << "================"<< std::endl;
+    std::cout << "============="<< std::endl;
 
     // Skip the second line
     std::getline(file, line);
@@ -622,6 +622,16 @@ int main(int argc, char* argv[]){
             }
         }
         bMatrix.display();
+        std::cout << "---Result---"<< std::endl;
+        if (operation == 'A') {
+            SparseMatrix resultMatrix = SparseMatrix::matrixAddition(aMatrix,bMatrix);
+            resultMatrix.display();
+        }
+
+        if (operation == 'M') {
+            SparseMatrix resultMatrix = SparseMatrix::matrixMultiplication(aMatrix,bMatrix);
+            resultMatrix.display();
+        }
 
     } // End of If (A or M)
     
