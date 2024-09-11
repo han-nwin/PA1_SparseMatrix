@@ -35,8 +35,8 @@ struct Node {
      * Pointers are set to nullptr by default.
      *
      * @param int data The value stored in the node.
-     * @param int rowIndex The row number of the node in the matrix.
-     * @param int colIndex The column number of the node in the matrix.
+     * @param unsigned int rowIndex The row number of the node in the matrix.
+     * @param unsigned int colIndex The column number of the node in the matrix.
      */
     Node(int data = 0, unsigned int rowIndex = 0, unsigned int colIndex = 0)
         : data{data}, rowIndex{rowIndex}, colIndex{colIndex}, nextRow{nullptr}, nextCol{nullptr} {}
@@ -67,8 +67,8 @@ class SparseMatrix {
      *
      * Initializes a sparse matrix of the specified dimension (row x col).
      *
-     * @param numRow The number of rows of the matrix
-     * @param numCol The number of columns of the matrix
+     * @param unsigned int numRow The number of rows of the matrix
+     * @param unsigned int numCol The number of columns of the matrix
      */
     SparseMatrix(unsigned int numRow = 0, unsigned int numCol = 0) : numRow(numRow), numCol(numCol) {
         header = new Node(0, numRow, numCol); //Create a Top-Left Header node at 0:0 with row and col numbers stored inside rowIndex, colIndex
@@ -544,6 +544,7 @@ int main(int argc, char* argv[]){
     char operation;
     int matrixSize;
     std::string line;   
+
     // Read the first line from the file
     if (std::getline(file, line)) {
         std::stringstream ss(line);
@@ -567,11 +568,9 @@ int main(int argc, char* argv[]){
         //initialize the 2 matrices
         SparseMatrix aMatrix(matrixSize,matrixSize);
         SparseMatrix bMatrix(matrixSize,matrixSize);
-
         int rowNum = 0;
         int colNum = 0;
         int value = 0;
-        int loopCount = 1;
 
         // Get data for aMatrix
         for(int i = 1; i <= matrixSize; i++) {
@@ -634,6 +633,62 @@ int main(int argc, char* argv[]){
         }
 
     } // End of If (A or M)
+
+    if(operation == 'T' || operation == 'S') {
+        //initialize the 1 matrix
+        SparseMatrix aMatrix(matrixSize,matrixSize);
+        int rowNum = 0;
+        int colNum = 0;
+        int value = 0;
+
+        // Get data for aMatrix
+        for(int i = 1; i <= matrixSize; i++) {
+            for(int j = 1; j <= matrixSize; j++) {
+                // Read the third line and process it
+                if (std::getline(file, line)) {
+                    std::stringstream ss(line);
+                    std::string firstElement, secondElement, thirdElement;
+                    // Get the first element
+                    std::getline(ss, firstElement, ',');
+                    // Get the second element
+                    std::getline(ss, secondElement, ',');
+                    // Get the third element
+                    std::getline(ss, thirdElement, ',');
+
+                    rowNum = std::stoi(firstElement);
+                    colNum = std::stoi(secondElement);
+                    value = std::stoi(thirdElement);
+                }
+                aMatrix.insert(value,rowNum,colNum);
+            }
+        }
+        aMatrix.display();
+
+        //Skip 1 line
+        std::getline(file, line);
+
+        if (operation == 'S') {
+            int scalar = 0;
+            if (std::getline(file, line)) {
+                std::stringstream ss(line);
+                std::string firstElement;
+                // Get the first element (the scalar)
+                std::getline(ss, firstElement, ',');
+                // Convert to int and store it
+                scalar = std::stoi(firstElement);
+                std::cout << "Scalar: " << scalar << std::endl;
+            }
+            SparseMatrix resultMatrix = SparseMatrix::matrixScalarMultiplication(aMatrix,scalar);
+            resultMatrix.display();
+        }
+
+        if(operation == 'T') {}
+
+
+
+
+
+    }// End of if opertaion = S or T
     
 
     
