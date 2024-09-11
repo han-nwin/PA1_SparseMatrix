@@ -483,10 +483,7 @@ SparseMatrix SparseMatrix::matrixTransposition(const SparseMatrix & a) {
 
     for(int i = 1; i <= a.rowLength(); i++) {
         for(int j = 1; j <= a.colLength(); j++) {
-            int value = a.access(i, j);
-            if (value != 0) { // Only insert non-zero values
-                b.insert(value, j, i);
-            }
+            b.insert(a.access(i, j), j, i); 
         }
     }
 
