@@ -483,7 +483,10 @@ SparseMatrix SparseMatrix::matrixTransposition(const SparseMatrix & a) {
 
     for(int i = 1; i <= a.rowLength(); i++) {
         for(int j = 1; j <= a.colLength(); j++) {
-            b.insert(a.access(i,j),j,i);
+            int value = a.access(i, j);
+            if (value != 0) { // Only insert non-zero values
+                b.insert(value, j, i);
+            }
         }
     }
 
@@ -561,9 +564,12 @@ int main(int argc, char* argv[]){
     std::cout << operation << " " << matrixSize << std::endl;
     std::cout << "============="<< std::endl;
 
+    SparseMatrix resultMatrix(matrixSize,matrixSize);
+
     // Skip the second line
     std::getline(file, line);
-
+    
+    
     if(operation == 'A' || operation == 'M') {
         //initialize the 2 matrices
         SparseMatrix aMatrix(matrixSize,matrixSize);
@@ -573,62 +579,60 @@ int main(int argc, char* argv[]){
         int value = 0;
 
         // Get data for aMatrix
-        for(int i = 1; i <= matrixSize; i++) {
-            for(int j = 1; j <= matrixSize; j++) {
-                // Read the third line and process it
-                if (std::getline(file, line)) {
-                    std::stringstream ss(line);
-                    std::string firstElement, secondElement, thirdElement;
-                    // Get the first element
-                    std::getline(ss, firstElement, ',');
-                    // Get the second element
-                    std::getline(ss, secondElement, ',');
-                    // Get the third element
-                    std::getline(ss, thirdElement, ',');
-
-                    rowNum = std::stoi(firstElement);
-                    colNum = std::stoi(secondElement);
-                    value = std::stoi(thirdElement);
-                }
-                aMatrix.insert(value,rowNum,colNum);
+        while(std::getline(file, line)) {
+            // Check if the line contains two consecutive commas
+            if (line.find(",,") != std::string::npos) {
+                break;  // break out of loop
             }
+            // Start at the third line and get data until meeting an empty line
+            std::stringstream ss(line);
+            std::string firstElement, secondElement, thirdElement;
+            // Get the first element
+            std::getline(ss, firstElement, ',');
+            // Get the second element
+            std::getline(ss, secondElement, ',');
+            // Get the third element
+            std::getline(ss, thirdElement, ',');
+            rowNum = std::stoi(firstElement);
+            colNum = std::stoi(secondElement);
+            value = std::stoi(thirdElement);
+                
+            aMatrix.insert(value,rowNum,colNum);
         }
         aMatrix.display();
 
-        // Skip the one line
-        std::getline(file, line);
-
         std::cout << "-----------"<< std::endl;
-        //Get data for bMatrix
-        for(int i = 1; i <= matrixSize; i++) {
-            for(int j = 1; j <= matrixSize; j++) {
-                // Read the third line and process it
-                if (std::getline(file, line)) {
-                    std::stringstream ss(line);
-                    std::string firstElement, secondElement, thirdElement;
-                    // Get the first element
-                    std::getline(ss, firstElement, ',');
-                    // Get the second element
-                    std::getline(ss, secondElement, ',');
-                    // Get the third element
-                    std::getline(ss, thirdElement, ',');
-
-                    rowNum = std::stoi(firstElement);
-                    colNum = std::stoi(secondElement);
-                    value = std::stoi(thirdElement);
-                }
-                bMatrix.insert(value,rowNum,colNum);
+        // Get data for bMatrix
+        while(std::getline(file, line)) {
+            // Check if the line contains two consecutive commas
+            if (line.find(",,") != std::string::npos) {
+                break;  // break out of loop
             }
+            // Start at the third line and get data until meeting an empty line
+            std::stringstream ss(line);
+            std::string firstElement, secondElement, thirdElement;
+            // Get the first element
+            std::getline(ss, firstElement, ',');
+            // Get the second element
+            std::getline(ss, secondElement, ',');
+            // Get the third element
+            std::getline(ss, thirdElement, ',');
+            rowNum = std::stoi(firstElement);
+            colNum = std::stoi(secondElement);
+            value = std::stoi(thirdElement);  
+            bMatrix.insert(value,rowNum,colNum);
         }
         bMatrix.display();
+
+        // Compute Results
         std::cout << "---Result---"<< std::endl;
         if (operation == 'A') {
-            SparseMatrix resultMatrix = SparseMatrix::matrixAddition(aMatrix,bMatrix);
+            resultMatrix = SparseMatrix::matrixAddition(aMatrix,bMatrix);
             resultMatrix.display();
         }
 
         if (operation == 'M') {
-            SparseMatrix resultMatrix = SparseMatrix::matrixMultiplication(aMatrix,bMatrix);
+            resultMatrix = SparseMatrix::matrixMultiplication(aMatrix,bMatrix);
             resultMatrix.display();
         }
 
@@ -642,34 +646,34 @@ int main(int argc, char* argv[]){
         int value = 0;
 
         // Get data for aMatrix
-        for(int i = 1; i <= matrixSize; i++) {
-            for(int j = 1; j <= matrixSize; j++) {
-                // Read the third line and process it
-                if (std::getline(file, line)) {
-                    std::stringstream ss(line);
-                    std::string firstElement, secondElement, thirdElement;
-                    // Get the first element
-                    std::getline(ss, firstElement, ',');
-                    // Get the second element
-                    std::getline(ss, secondElement, ',');
-                    // Get the third element
-                    std::getline(ss, thirdElement, ',');
-
-                    rowNum = std::stoi(firstElement);
-                    colNum = std::stoi(secondElement);
-                    value = std::stoi(thirdElement);
-                }
-                aMatrix.insert(value,rowNum,colNum);
+        while(std::getline(file, line)) {
+            // Check if the line contains two consecutive commas
+            if (line.find(",,") != std::string::npos) {
+                std::cout << "Line with consecutive commas encountered. Skipping." << std::endl;
+                break;  // break out of loop
             }
+            // Start at the third line and get data until meeting an empty line
+            std::stringstream ss(line);
+            std::string firstElement, secondElement, thirdElement;
+            // Get the first element
+            std::getline(ss, firstElement, ',');
+            // Get the second element
+            std::getline(ss, secondElement, ',');
+            // Get the third element
+            std::getline(ss, thirdElement, ',');
+            rowNum = std::stoi(firstElement);
+            colNum = std::stoi(secondElement);
+            value = std::stoi(thirdElement);
+                
+            aMatrix.insert(value,rowNum,colNum);
         }
         aMatrix.display();
 
-        //Skip 1 line
-        std::getline(file, line);
-
+        //Compute and print Result
+        std::cout << "---Result---"<< std::endl;
         if (operation == 'S') {
             int scalar = 0;
-            if (std::getline(file, line)) {
+            if(std::getline(file, line)) {
                 std::stringstream ss(line);
                 std::string firstElement;
                 // Get the first element (the scalar)
@@ -678,19 +682,15 @@ int main(int argc, char* argv[]){
                 scalar = std::stoi(firstElement);
                 std::cout << "Scalar: " << scalar << std::endl;
             }
-            SparseMatrix resultMatrix = SparseMatrix::matrixScalarMultiplication(aMatrix,scalar);
+            resultMatrix = SparseMatrix::matrixScalarMultiplication(aMatrix,scalar);
             resultMatrix.display();
         }
 
-        if(operation == 'T') {}
-
-
-
-
-
-    }// End of if opertaion = S or T
-    
-
+        if(operation == 'T') {
+            resultMatrix = SparseMatrix::matrixTransposition(aMatrix);
+            resultMatrix.display();
+        }
+    }// End of If (S or T)
     
     file.close();
     /*
