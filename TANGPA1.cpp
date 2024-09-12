@@ -532,7 +532,7 @@ int main(int argc, char* argv[]){
         std::cerr << "Error: The input file must be a .csv file." << std::endl;
         return 1;
     }
-
+    
     //Open the csv file
     std::ifstream file(filePath);
     // Check if the file is open
@@ -561,7 +561,6 @@ int main(int argc, char* argv[]){
     std::cout << operation << " " << matrixSize << std::endl;
     std::cout << "============="<< std::endl;
 
-    SparseMatrix resultMatrix(matrixSize,matrixSize);
 
     // Skip the second line
     std::getline(file, line);
@@ -624,12 +623,12 @@ int main(int argc, char* argv[]){
         // Compute Results
         std::cout << "---Result---"<< std::endl;
         if (operation == 'A') {
-            resultMatrix = SparseMatrix::matrixAddition(aMatrix,bMatrix);
+            SparseMatrix resultMatrix = SparseMatrix::matrixAddition(aMatrix,bMatrix);
             resultMatrix.display();
         }
 
         if (operation == 'M') {
-            resultMatrix = SparseMatrix::matrixMultiplication(aMatrix,bMatrix);
+            SparseMatrix resultMatrix = SparseMatrix::matrixMultiplication(aMatrix,bMatrix);
             resultMatrix.display();
         }
 
@@ -679,17 +678,18 @@ int main(int argc, char* argv[]){
                 scalar = std::stoi(firstElement);
                 std::cout << "Scalar: " << scalar << std::endl;
             }
-            resultMatrix = SparseMatrix::matrixScalarMultiplication(aMatrix,scalar);
+            SparseMatrix resultMatrix = SparseMatrix::matrixScalarMultiplication(aMatrix,scalar);
             resultMatrix.display();
         }
 
         if(operation == 'T') {
-            resultMatrix = SparseMatrix::matrixTransposition(aMatrix);
+            SparseMatrix resultMatrix = SparseMatrix::matrixTransposition(aMatrix);
             resultMatrix.display();
         }
     }// End of If (S or T)
     
     file.close();
+    
     /*
     std::cout << "++++++++++++++++THIS IS A TEST PORTION+++++++++++++++++" << std::endl;
     SparseMatrix m(5,10);
