@@ -284,6 +284,8 @@ class SparseMatrix {
      */
     static SparseMatrix matrixScalarMultiplication(const SparseMatrix & a, int k);
 
+    void exportToCSV(std::string filePath);
+
 };
 
 // Implementation of rowLength method
@@ -503,6 +505,11 @@ SparseMatrix SparseMatrix::matrixScalarMultiplication(const SparseMatrix & a, in
     return b;
 }
 
+// Implementation of exportToCSV method
+void exportToCSV(std::string filePath) {
+    
+
+}
 
 /**
  * @brief Entry point of the program that demonstrates SparseMatrix operations.
