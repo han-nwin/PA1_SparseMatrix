@@ -284,7 +284,7 @@ class SparseMatrix {
      */
     static SparseMatrix matrixScalarMultiplication(const SparseMatrix & a, int k);
 
-    void exportToCSV(std::string filePath);
+    void exportToCSV(const std::string & filePath);
 
 };
 
@@ -506,9 +506,31 @@ SparseMatrix SparseMatrix::matrixScalarMultiplication(const SparseMatrix & a, in
 }
 
 // Implementation of exportToCSV method
-void exportToCSV(std::string filePath) {
-    
+void SparseMatrix::exportToCSV(const std::string & filePath) {
+     // Find the last '/' or '\' to separate the path from the file name
+    size_t sepPos = filePath.find_last_of("/\\");
+    std::string path = "";
+    std::string fileName = filePath;
 
+    if (sepPos != std::string::npos) {
+        path = filePath.substr(0, sepPos + 1);  // Directory path with trailing separator
+        fileName = filePath.substr(sepPos + 1); // File name only
+    }
+
+    // Find the position of the file extension (if any)
+    size_t dotPos = fileName.find_last_of('.');
+    if (dotPos != std::string::npos) {
+        fileName.insert(dotPos, "_output");
+    } else {
+        // If there's no extension, simply append _output at the end
+        fileName += "_output";
+    }
+
+    // Combine the path and the modified filename
+    std::string fullOutputPath = path + fileName;
+
+    // Open the file in trunc mode to ensure a new file is created
+    std::ofstream file(fullOutputPath, std::ios::trunc);
 }
 
 /**
@@ -632,6 +654,7 @@ int main(int argc, char* argv[]){
         if (operation == 'A') {
             SparseMatrix resultMatrix = SparseMatrix::matrixAddition(aMatrix,bMatrix);
             resultMatrix.display();
+            resultMatrix.exportToCSV(filePath);
         }
 
         if (operation == 'M') {
