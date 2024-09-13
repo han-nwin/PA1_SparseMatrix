@@ -521,29 +521,29 @@ SparseMatrix SparseMatrix::matrixScalarMultiplication(const SparseMatrix & a, in
 // Implementation of exportToCSV method
 void SparseMatrix::exportToCSV(const std::string & filePath) {
      // Find the last '/' or '\' to separate the path from the file name
-    size_t sepPos = filePath.find_last_of("/\\");
+    size_t sepPosition = filePath.find_last_of("/\\");
     std::string path = "";
     std::string fileName = filePath; //initialize the filename var
 
-    if (sepPos != std::string::npos) {
-        path = filePath.substr(0, sepPos + 1);  // Directory path with trailing separator
-        fileName = filePath.substr(sepPos + 1); // File name only
+    if (sepPosition != std::string::npos) { // If the sepPosition exist
+        path = filePath.substr(0, sepPosition + 1);  // Directory path with trailing separator
+        fileName = filePath.substr(sepPosition + 1); // File name only
     }
 
     // Find the position of the file extension (if any)
-    size_t dotPos = fileName.find_last_of('.');
-    if (dotPos != std::string::npos) {
-        fileName.insert(dotPos, "_output");
+    size_t dotPosition = fileName.find_last_of('.');
+    if (dotPosition != std::string::npos) { //if the file has a dot position (extension)
+        fileName.insert(dotPosition, "_output");
     } else {
-        // If there's no extension, simply append _output at the end
+        // If there's no extension, just append _output at the end
         fileName += "_output";
     }
 
     // Combine the path and the modified filename
-    std::string fullOutputPath = path + fileName;
+    std::string outputPath = path + fileName;
 
     // Open the file in trunc mode to ensure a new file is created
-    std::ofstream file(fullOutputPath, std::ios::trunc);
+    std::ofstream file(outputPath, std::ios::trunc);
 
     // Iterate over each row
     for (int i = 1; i <= numRow; ++i) {
@@ -560,7 +560,7 @@ void SparseMatrix::exportToCSV(const std::string & filePath) {
             
     }
     file.close();
-    std::cout << "Data exported successfully to " << fullOutputPath << std::endl;
+    std::cout << "Data exported successfully to " << outputPath << std::endl;
 }
 
 
