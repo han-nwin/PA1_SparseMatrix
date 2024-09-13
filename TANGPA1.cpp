@@ -42,7 +42,6 @@ struct Node {
         : data{data}, rowIndex{rowIndex}, colIndex{colIndex}, nextRow{nullptr}, nextCol{nullptr} {}
 };
 
-
 /**
  * @class SparseMatrix
  * @brief Represents a Sparse Matrix using circularly-linked lists.
@@ -300,7 +299,7 @@ class SparseMatrix {
 
 };
 
-
+/*==============================================================================================================*/
 // Implementation of rowLength method
 int SparseMatrix::rowLength() const {
     return this->numRow;
@@ -564,7 +563,7 @@ void SparseMatrix::exportToCSV(const std::string & filePath) {
 }
 
 
-
+/*==============================================================================================================*/
 /**
  * @brief Entry point of the program that demonstrates SparseMatrix operations.
  *
