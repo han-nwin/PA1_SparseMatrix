@@ -1,5 +1,5 @@
 /**
-* CS/SE 3345 - Programming Assignment 1 -
+* CS/SE 3345 - Programming Assignment 1 - Sparse Matrix
 * Lecturer: Andrew Nemec
 * Name: Tan Han Nguyen
 * NetID: TXN 200004
@@ -284,9 +284,22 @@ class SparseMatrix {
      */
     static SparseMatrix matrixScalarMultiplication(const SparseMatrix & a, int k);
 
+    /**
+     * @brief Export non-zero elements of the sparse matrix to a CSV file.
+     * 
+     * This function exports the non-zero elements of the sparse matrix to a CSV file. The output filename 
+     * is based on `filePath`, with "_output" appended before the file extension (or added if none exists).
+     * 
+     * Each line in the CSV contains the row index, column index, and value of a non-zero element. The file 
+     * is opened in truncation mode to overwrite any existing content.
+     * 
+     * @param const std::string & filePath: Path and name of the output file. The filename is modified to 
+     *          include "_output".
+     */
     void exportToCSV(const std::string & filePath);
 
 };
+
 
 // Implementation of rowLength method
 int SparseMatrix::rowLength() const {
@@ -510,7 +523,7 @@ void SparseMatrix::exportToCSV(const std::string & filePath) {
      // Find the last '/' or '\' to separate the path from the file name
     size_t sepPos = filePath.find_last_of("/\\");
     std::string path = "";
-    std::string fileName = filePath;
+    std::string fileName = filePath; //initialize the filename var
 
     if (sepPos != std::string::npos) {
         path = filePath.substr(0, sepPos + 1);  // Directory path with trailing separator
@@ -549,6 +562,8 @@ void SparseMatrix::exportToCSV(const std::string & filePath) {
     file.close();
     std::cout << "Data exported successfully to " << fullOutputPath << std::endl;
 }
+
+
 
 /**
  * @brief Entry point of the program that demonstrates SparseMatrix operations.
@@ -641,7 +656,7 @@ int main(int argc, char* argv[]){
                 
             aMatrix.insert(value,rowNum,colNum);
         }
-        aMatrix.display();
+        aMatrix.display(); //Display aMatrix
 
         std::cout << "-----------"<< std::endl;
         // Get data for bMatrix
@@ -664,19 +679,19 @@ int main(int argc, char* argv[]){
             value = std::stoi(thirdElement);  
             bMatrix.insert(value,rowNum,colNum);
         }
-        bMatrix.display();
+        bMatrix.display(); //Display bMatrix
 
         // Compute Results
         std::cout << "---Result---"<< std::endl;
         if (operation == 'A') {
             SparseMatrix resultMatrix = SparseMatrix::matrixAddition(aMatrix,bMatrix);
-            resultMatrix.display();
+            resultMatrix.display(); //Print result
             resultMatrix.exportToCSV(filePath); // Export Result
         }
 
         if (operation == 'M') {
             SparseMatrix resultMatrix = SparseMatrix::matrixMultiplication(aMatrix,bMatrix);
-            resultMatrix.display();
+            resultMatrix.display(); //Print result
             resultMatrix.exportToCSV(filePath); // Export Result
         }
 
@@ -711,7 +726,7 @@ int main(int argc, char* argv[]){
                 
             aMatrix.insert(value,rowNum,colNum);
         }
-        aMatrix.display();
+        aMatrix.display(); //Display aMatrix
 
         //Compute and print Result
         std::cout << "---Result---"<< std::endl;
@@ -727,114 +742,18 @@ int main(int argc, char* argv[]){
                 std::cout << "Scalar: " << scalar << std::endl;
             }
             SparseMatrix resultMatrix = SparseMatrix::matrixScalarMultiplication(aMatrix,scalar);
-            resultMatrix.display();
+            resultMatrix.display(); //Print result
             resultMatrix.exportToCSV(filePath); // Export Result
         }
 
         if(operation == 'T') {
             SparseMatrix resultMatrix = SparseMatrix::matrixTransposition(aMatrix);
-            resultMatrix.display();
+            resultMatrix.display(); //Print result
             resultMatrix.exportToCSV(filePath); // Export Result
         }
     }// End of If (S or T)
     
     file.close();
     
-    /*
-    std::cout << "++++++++++++++++THIS IS A TEST PORTION+++++++++++++++++" << std::endl;
-    SparseMatrix m(5,10);
-    m.display();
-    std::cout << "Add Data" << std::endl;
-    for (int i = 1; i<=5; i++){
-        for(int j = 1; j<=10; j++){
-            m.insert(8,i,j);
-        }
-    }
-    m.display();
-    std::cout << "Num Row: " << m.rowLength() <<std::endl;
-    std::cout << "Num Col: " << m.colLength() <<std::endl;
-
-    std::cout << "===Insert===" << std::endl;
-    int r = 4;
-    int c = 7;
-    std::cout << "Row index: " << r << std::endl;
-    std::cout << "Col index: " << c << std::endl;
-    m.insert(77,r,c);
-    m.display();
-    std::cout << "===Access===" << std::endl;
-    std::cout << "Row index: " << r << std::endl;
-    std::cout << "Col index: " << c << std::endl;
-    std::cout << "Access Data: " << m.access(r,c) << std::endl;
-
-    std::cout << "===Remove===" << std::endl;
-    r = 4;
-    c = 7;
-    std::cout << "Row index: " << r << std::endl;
-    std::cout << "Col index: " << c << std::endl;
-    m.remove(r,c);
-    m.display();
-
-    std::cout << "===Access After Remove===" << std::endl;
-    r = 4;
-    c = 7;
-    std::cout << "Row index: " << r << std::endl;
-    std::cout << "Col index: " << c << std::endl;
-    std::cout << "Access Data: " << m.access(r,c) << std::endl;
-
-    std::cout << "===Addition===" << std::endl;
-    SparseMatrix aMatrix(3,3);
-    std::cout << "Add Data" << std::endl;
-    for (int i = 1; i<=3; i++){
-        for(int j = 1; j<=3; j++){
-            aMatrix.insert(3,i,j);
-        }
-    }
-    aMatrix.display();
-    SparseMatrix bMatrix(3,3);
-    for (int i = 1; i<=3; i++){
-        for(int j = 1; j<=3; j++){
-            bMatrix.insert(2,i,j);
-        }
-    }
-    bMatrix.display();
-
-    SparseMatrix cMatrix = SparseMatrix::matrixAddition(aMatrix,bMatrix);
-    cMatrix.display();
-
-
-    std::cout << "===Multiplication===" << std::endl;
-    SparseMatrix dMatrix(4,4);
-    std::cout << "Add Data" << std::endl;
-    for (int i = 1; i<=4; i++){
-        for(int j = 1; j<=4; j++){
-            dMatrix.insert(7,i,j);
-        }
-    }
-    dMatrix.display();
-
-    SparseMatrix eMatrix(4,4);
-    for (int i = 1; i<=4; i++){
-        for(int j = 1; j<=4; j++){
-            eMatrix.insert(3,i,j);
-        }
-    }
-    eMatrix.display();
-
-    SparseMatrix fMatrix = SparseMatrix::matrixMultiplication(dMatrix,eMatrix);
-    fMatrix.display();
-
-    std::cout << "===Transposition===" << std::endl;
-    fMatrix.insert(777,2,3);
-    fMatrix.insert(555,3,2);
-    fMatrix.display();
-    SparseMatrix gMatrix = SparseMatrix::matrixTransposition(fMatrix);
-    gMatrix.display();
-
-    std::cout << "===Scalar Multiplication===" << std::endl;
-    gMatrix.display();
-    SparseMatrix kMatrix = SparseMatrix::matrixScalarMultiplication(gMatrix, 10);
-    kMatrix.display();
-
-    */
     return 0;
 }
