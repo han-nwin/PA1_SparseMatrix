@@ -583,7 +583,7 @@ void SparseMatrix::exportToCSV(const std::string & filePath) {
 int main(int argc, char* argv[]){
     // Ensure that a file argument is passed
     if (argc != 2) {
-        std::cerr << "Usage: Missing file path argument " << argv[0] << " <csv-file-path>" << std::endl;
+        std::cerr << "Usage: " << argv[0] << " <csv-file-path>" << std::endl;
         return 1;
     }
     // Check if the file path is to a .cvs
