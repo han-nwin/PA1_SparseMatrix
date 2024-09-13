@@ -531,6 +531,23 @@ void SparseMatrix::exportToCSV(const std::string & filePath) {
 
     // Open the file in trunc mode to ensure a new file is created
     std::ofstream file(fullOutputPath, std::ios::trunc);
+
+    // Iterate over each row
+    for (int i = 1; i <= numRow; ++i) {
+        Node* current = rowHeaders[i]->nextCol;  // Skip the placeholder and start with the first actual node
+
+        // Iterate over each column in this row
+        for (int j = 1; j <= numCol; ++j) {
+            if (current->data != 0) {
+                file << current->rowIndex << "," << current->colIndex << "," << current->data;
+                current = current->nextCol;  // Move to the next node in the row
+                file << "\n";  // New line
+            }
+        }
+            
+    }
+    file.close();
+    std::cout << "Data exported successfully to " << fullOutputPath << std::endl;
 }
 
 /**
@@ -654,12 +671,13 @@ int main(int argc, char* argv[]){
         if (operation == 'A') {
             SparseMatrix resultMatrix = SparseMatrix::matrixAddition(aMatrix,bMatrix);
             resultMatrix.display();
-            resultMatrix.exportToCSV(filePath);
+            resultMatrix.exportToCSV(filePath); // Export Result
         }
 
         if (operation == 'M') {
             SparseMatrix resultMatrix = SparseMatrix::matrixMultiplication(aMatrix,bMatrix);
             resultMatrix.display();
+            resultMatrix.exportToCSV(filePath); // Export Result
         }
 
     } // End of If (A or M)
@@ -710,11 +728,13 @@ int main(int argc, char* argv[]){
             }
             SparseMatrix resultMatrix = SparseMatrix::matrixScalarMultiplication(aMatrix,scalar);
             resultMatrix.display();
+            resultMatrix.exportToCSV(filePath); // Export Result
         }
 
         if(operation == 'T') {
             SparseMatrix resultMatrix = SparseMatrix::matrixTransposition(aMatrix);
             resultMatrix.display();
+            resultMatrix.exportToCSV(filePath); // Export Result
         }
     }// End of If (S or T)
     
