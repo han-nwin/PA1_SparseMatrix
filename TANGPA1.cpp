@@ -116,9 +116,11 @@ class SparseMatrix {
         // Free the arrays of row and column headers
         delete[] rowHeaders;
         delete[] colHeaders;
-
+        rowHeaders = nullptr;
+        colHeaders =nullptr;
         // Finally delete the header pointer
         delete header;
+        header = nullptr;
     }
    
     /**
@@ -559,7 +561,7 @@ void SparseMatrix::exportToCSV(const std::string & filePath) {
             
     }
     file.close();
-    std::cout << "Data exported successfully to " << outputPath << std::endl;
+    std::cout << "Data exported successfully to " << "'" << outputPath<< "'" << std::endl;
 }
 
 
