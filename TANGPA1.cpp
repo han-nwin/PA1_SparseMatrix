@@ -158,8 +158,7 @@ class SparseMatrix {
      * @brief Accesses the value at the specified row and column in the sparse matrix.
      *
      * This method retrieves the value stored in the matrix at the given row and column.
-     * If no value is stored at that position (i.e., the element is 0 in the sparse matrix),
-     * it will either return 0 or throw an exception, depending on the implementation.
+     * If no value is stored at that position, it will return 0
      * The method is marked as 'const', guarantees that the state of the matrix is not altered.
      *
      * @param int rowIndex The row index of the element to access.
@@ -177,9 +176,9 @@ class SparseMatrix {
      * Inserts a new non-zero element into the matrix at the specified row and column.
      * This method uses the circularly-linked list structure to efficiently store the element.
      *
-     * @param data The non-zero value to be added to the matrix.
-     * @param rowIndex The row index of the element.
-     * @param colIndex The column index of the element.
+     * @param int data The non-zero value to be added to the matrix.
+     * @param int rowIndex The row index of the element.
+     * @param int colIndex The column index of the element.
      * 
      * @throws std::out_of_range if the rowIndex or colIndex is outside the matrix bounds.
      */
@@ -709,7 +708,6 @@ int main(int argc, char* argv[]){
         while(std::getline(file, line)) {
             // Check if the line contains two consecutive commas
             if (line.find(",,") != std::string::npos) {
-                std::cout << "Line with consecutive commas encountered. Skipping." << std::endl;
                 break;  // break out of loop
             }
             // Start at the third line and get data until meeting an empty line
